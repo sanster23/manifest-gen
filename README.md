@@ -1,2 +1,3 @@
-# helm-chart-gen
-helm chart generator
+# manifest-gen
+
+`manifest-gen` is a tool to generate argo and helm manifests on the fly
