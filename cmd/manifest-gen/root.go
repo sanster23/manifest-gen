@@ -21,8 +21,6 @@ func newRootCmd(out io.Writer, args []string) (*cobra.Command, error) {
 	}
 	flags := cmd.PersistentFlags()
 
-	// addKlogFlags(flags)
-
 	// We can safely ignore any errors that flags.Parse encounters since
 	// those errors will be caught later during the call to cmd.Execution.
 	// This call is required to gather configuration information prior to

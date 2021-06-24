@@ -17,10 +17,17 @@ type argoOptions struct {
 }
 
 func newCreateArgoCmd(out io.Writer) *cobra.Command {
+	o := &argoOptions{}
+
 	cmd := &cobra.Command{
 		Use:   "create argo manifest",
 		Short: "create a new argo manifest",
-		Long:  "",
+		Long:  createArgoDesc,
 	}
+	f := cmd.Flags()
+	f.StringVar(&o.appName, "app-name", "hello-world", "app name for argo manifest")
+	f.StringVar(&o.gitRepo, "git-repo", "", "git repo link")
+	f.BoolVar(&o.autoSync, "auto-sync", false, "enable auto sync on in argo application")
+
 	return cmd
 }

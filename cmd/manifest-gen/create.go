@@ -7,7 +7,7 @@ import (
 )
 
 const createDesc = `
-Create provides ability generate manifest for argo and helm charts
+Create provides ability generate manifest for argo and helm charts.
 `
 
 func newCreateCmd(out io.Writer) *cobra.Command {
@@ -18,6 +18,6 @@ func newCreateCmd(out io.Writer) *cobra.Command {
 	}
 
 	cmd.AddCommand(newCreateArgoCmd(out))
-	// cmd.AddCommand(newCreateHelmCmd(out))
+	cmd.AddCommand(newCreateHelmCmd(out))
 	return cmd
 }
