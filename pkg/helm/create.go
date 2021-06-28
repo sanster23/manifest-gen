@@ -547,10 +547,10 @@ func CreateFrom(chartfile *chart.Metadata, dest, src string) error {
 // If Chart.yaml or any directories cannot be created, this will return an
 // error. In such a case, this will attempt to clean up by removing the
 // new chart directory.
-func Create(name, dir string) (string, error) {
+func (o *HelmOptions) Create(dir string) (string, error) {
 
 	// Sanity-check the name of a chart so user doesn't create one that causes problems.
-	if err := validateChartName(name); err != nil {
+	if err := validateChartName(o.Name); err != nil {
 		return "", err
 	}
 
@@ -565,7 +565,7 @@ func Create(name, dir string) (string, error) {
 		return path, errors.Errorf("no such directory %s", path)
 	}
 
-	cdir := filepath.Join(path, name)
+	cdir := filepath.Join(path, o.Name)
 	if fi, err := os.Stat(cdir); err == nil && !fi.IsDir() {
 		return cdir, errors.Errorf("file %s already exists and is not a directory", cdir)
 	}
@@ -577,12 +577,12 @@ func Create(name, dir string) (string, error) {
 		{
 			// Chart.yaml
 			path:    filepath.Join(cdir, ChartfileName),
-			content: []byte(fmt.Sprintf(defaultChartfile, name)),
+			content: []byte(fmt.Sprintf(defaultChartfile, o.Name)),
 		},
 		{
 			// values.yaml
 			path:    filepath.Join(cdir, ValuesfileName),
-			content: []byte(fmt.Sprintf(defaultValues, name)),
+			content: []byte(fmt.Sprintf(defaultValues, o.Name)),
 		},
 		{
 			// .helmignore
@@ -592,42 +592,42 @@ func Create(name, dir string) (string, error) {
 		{
 			// ingress.yaml
 			path:    filepath.Join(cdir, IngressFileName),
-			content: transform(defaultIngress, name),
+			content: transform(defaultIngress, o.Name),
 		},
 		{
 			// deployment.yaml
 			path:    filepath.Join(cdir, DeploymentName),
-			content: transform(defaultDeployment, name),
+			content: transform(defaultDeployment, o.Name),
 		},
 		{
 			// service.yaml
 			path:    filepath.Join(cdir, ServiceName),
-			content: transform(defaultService, name),
+			content: transform(defaultService, o.Name),
 		},
 		{
 			// serviceaccount.yaml
 			path:    filepath.Join(cdir, ServiceAccountName),
-			content: transform(defaultServiceAccount, name),
+			content: transform(defaultServiceAccount, o.Name),
 		},
 		{
 			// hpa.yaml
 			path:    filepath.Join(cdir, HorizontalPodAutoscalerName),
-			content: transform(defaultHorizontalPodAutoscaler, name),
+			content: transform(defaultHorizontalPodAutoscaler, o.Name),
 		},
 		{
 			// NOTES.txt
 			path:    filepath.Join(cdir, NotesName),
-			content: transform(defaultNotes, name),
+			content: transform(defaultNotes, o.Name),
 		},
 		{
 			// _helpers.tpl
 			path:    filepath.Join(cdir, HelpersName),
-			content: transform(defaultHelpers, name),
+			content: transform(defaultHelpers, o.Name),
 		},
 		{
 			// test-connection.yaml
 			path:    filepath.Join(cdir, TestConnectionName),
-			content: transform(defaultTestConnection, name),
+			content: transform(defaultTestConnection, o.Name),
 		},
 	}
 
@@ -668,4 +668,30 @@ func validateChartName(name string) error {
 		return fmt.Errorf("chart name must match the regular expression %q", chartName.String())
 	}
 	return nil
+}
+
+func (o *HelmOptions) Run() error {
+
+	chartname := filepath.Base(o.Name)
+
+	cfile := &chart.Metadata{
+		Name:        chartname,
+		Description: "A Helm chart for Kubernetes",
+		Type:        "application",
+		Version:     "0.1.0",
+		AppVersion:  "0.1.0",
+		APIVersion:  chart.APIVersionV2,
+	}
+
+	if o.Starter != "" {
+		// Create from the starter
+		lstarter := filepath.Join(o.StarterDir, o.Starter)
+		// If path is absolute, we don't want to prefix it with helm starters folder
+		if filepath.IsAbs(o.Starter) {
+			lstarter = o.Starter
+		}
+		return CreateFrom(cfile, filepath.Dir(o.Name), lstarter)
+	}
+	_, err := o.Create(filepath.Dir(o.Name))
+	return err
 }

@@ -19,7 +19,11 @@ GOFLAGS    :=
 
 
 .PHONY: all
-all: lint build
+all: clean lint build
+
+.PHONY: clean
+clean:
+	rm -rf bin/manifest-gen
 
 # ------------------------------------------------------------------------------
 #  lint
@@ -32,10 +36,10 @@ lint:
 #  build
 
 .PHONY: build
-build: $(BINDIR)/$(BINNAME)
+build: clean $(BINDIR)/$(BINNAME)
 
 $(BINDIR)/$(BINNAME): $(SRC)
-	GO111MODULE=on go build $(GOFLAGS) -trimpath -tags '$(TAGS)' -ldflags '$(LDFLAGS)' -o '$(BINDIR)'/$(BINNAME) ./cmd/manifest-gen
+	GO111MODULE=on go build $(GOFLAGS) -trimpath -tags '$(TAGS)' -ldflags '$(LDFLAGS)' -o '$(BINDIR)'/$(BINNAME) manifest-gen.go
 
 
 # ------------------------------------------------------------------------------
