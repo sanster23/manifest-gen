@@ -1,6 +1,7 @@
 package helm
 
 import (
+	"bytes"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -8,6 +9,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
+	"text/template"
 
 	"github.com/pkg/errors"
 	"sigs.k8s.io/yaml"
@@ -87,17 +89,17 @@ version: 0.1.0
 appVersion: "1.16.0"
 `
 
-const defaultValues = `# Default values for %s.
+const defaultValues = `# Default values for {{.name}}.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
 replicaCount: 1
 
 image:
-  repository: nginx
-  pullPolicy: IfNotPresent
+  repository: {{.image}}
+  pullPolicy: {{.imagePullPolicy}}
   # Overrides the image tag whose default is the chart appVersion.
-  tag: ""
+  tag: {{.imageTag}}
 
 imagePullSecrets: []
 nameOverride: ""
@@ -126,8 +128,8 @@ securityContext: {}
   # runAsUser: 1000
 
 service:
-  type: ClusterIP
-  port: 80
+  type: {{.serviceType}}
+  port: {{.servicePort}}
 
 ingress:
   enabled: false
@@ -570,6 +572,23 @@ func (o *HelmOptions) Create(dir string) (string, error) {
 		return cdir, errors.Errorf("file %s already exists and is not a directory", cdir)
 	}
 
+	type ValuesMap map[string]interface{}
+
+	valuesMap := ValuesMap{
+		"name":            o.Name,
+		"image":           o.Image,
+		"imageTag":        o.ImageTag,
+		"imagePullPolicy": o.ImagePullPolicy,
+		"serviceType":     o.ServiceType,
+		"servicePort":     o.ServicePort,
+	}
+
+	valuesBuffer := &bytes.Buffer{}
+
+	template.Must(template.New("").Parse(defaultValues)).Execute(valuesBuffer, valuesMap)
+
+	valuesFileArgs := valuesBuffer.String()
+
 	files := []struct {
 		path    string
 		content []byte
@@ -582,7 +601,7 @@ func (o *HelmOptions) Create(dir string) (string, error) {
 		{
 			// values.yaml
 			path:    filepath.Join(cdir, ValuesfileName),
-			content: []byte(fmt.Sprintf(defaultValues, o.Name)),
+			content: []byte(valuesFileArgs),
 		},
 		{
 			// .helmignore

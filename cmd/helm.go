@@ -26,7 +26,7 @@ func newHelmCommand() *cobra.Command {
 
 	f := cmd.Flags()
 	f.StringVar(&o.Name, "name", "hello-world", "name of the helm chart")
-	f.StringVar(&o.Image, "image", "", "docker image")
+	f.StringVar(&o.Image, "image", "nginx", "docker image")
 	f.StringVar(&o.ImageTag, "image-tag", "latest", "docker image tag")
 	f.StringVar(&o.ImagePullPolicy, "image-pull-policy", "Always", "image pull policy for containers")
 	f.StringVar(&o.ServiceType, "service-type", "ClusterIP", "service type [ClusterIP, NodePort, LoadBalancer] ")
