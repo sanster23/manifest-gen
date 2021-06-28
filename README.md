@@ -15,5 +15,5 @@ $ make install # install binary to ~/go/bin/manifest-gen
 
 creating helm manifests
 ```shell
-./bin/manifest-gen create helm --name sanjay --image "docker.io/nginx" --image-pull-policy "Always" --image-tag "latest" --service-type "ClusterIP" --service-port 8080
+./bin/manifest-gen create helm --name "my-service" --image "docker.io/nginx" --image-pull-policy "Always" --image-tag "latest" --service-type "ClusterIP" --service-port 8080
 ```
