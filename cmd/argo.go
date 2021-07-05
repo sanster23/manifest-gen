@@ -7,7 +7,7 @@ import (
 )
 
 func init() {
-	createCmd.AddCommand(newArgoCommand())
+	rootCmd.AddCommand(newArgoCommand())
 }
 
 type argoOptions struct {

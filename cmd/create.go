@@ -12,7 +12,7 @@ with a predefined directory structure and some predefined template`
 // createCmd represents the create command
 var createCmd = &cobra.Command{
 	Use:   "create",
-	Short: "Create argo or helm manifests",
+	Short: "Create a sample config with default values",
 	Long:  createDesc,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("create called")
@@ -20,5 +20,5 @@ var createCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(createCmd)
+	configCmd.AddCommand(createCmd)
 }

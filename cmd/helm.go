@@ -7,7 +7,7 @@ import (
 )
 
 func init() {
-	createCmd.AddCommand(newHelmCommand())
+	rootCmd.AddCommand(newHelmCommand())
 }
 
 const helmLongDesc = `Long description`
